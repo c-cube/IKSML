@@ -44,7 +44,6 @@ def is_S(node):
 def is_I(node):
     return node.nodeType == node.ELEMENT_NODE \
        and node.tagName.strip() == 'fun' \
-       and children(node)[0].nodeType == node.TEXT_NODE \
        and children(node)[0].tagName.strip() == 'I'
 
 def _one_step(term, node):
@@ -79,9 +78,9 @@ def _one_step(term, node):
         left = children(node)[0]
         right = children(node)[1]
         # try to rewrite left subtermm
-        _one_step(left)
+        _one_step(term, left)
         # try to rewrite right subtermm
-        _one_step(right)
+        _one_step(term, right)
 
 def one_step(term):
     """Performs in-place one step of reduction of the given term,
@@ -102,10 +101,15 @@ def one_step(term):
 
 def reduce_term(term):
     """Performs reduction steps until the term
-    is in normal form
+    is in normal form.
+    Returns the number of steps.
     """
-    while one_step(term):
-        pass  # loop until not rewriting step
+    i = 0
+    while True:
+        if not one_step(term):
+            break  # loop until not rewriting step
+        i += 1
+    return i
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -113,9 +117,9 @@ if __name__ == '__main__':
     with open(sys.argv[1]) as f:
         term = xml.dom.minidom.parse(f)
     print term.toxml()
-    reduce_term(term)
+    steps = reduce_term(term)
     print '-' * 70
-    print "normal form:"
+    print "normal form (%s steps):" % steps
     print term.toprettyxml(indent='  ')
 
 # vim:shiftwidth=4:tabstop=4:
