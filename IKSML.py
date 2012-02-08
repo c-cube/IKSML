@@ -8,12 +8,15 @@ For reference, see http://en.wikipedia.org/wiki/SK_calculus .
 import sys
 import xml.dom.minidom
 
-def mk_apply(left, right):
+class Exit(Exception):
+    """How to exit from a tree..."""
+    pass
+
+def mk_apply(term, left, right):
     """Build an 'apply' node"""
-    node = xml.dom.minidom.Node()
+    node = term.createElement('apply')
     node.appendChild(left)
     node.appendChild(right)
-    node.tagName = 'apply'
     return node
 
 def children(node):
@@ -44,42 +47,41 @@ def is_I(node):
        and children(node)[0].nodeType == node.TEXT_NODE \
        and children(node)[0].tagName.strip() == 'I'
 
-def _one_step(node):
-    """If node is a suitable place for rewriting,
-    rewrite node and return true. Else, recurse in subterms.
+def _one_step(term, node):
+    """If node is a suitable place for rewriting, rewrite node and raise Exit.
     """
     if not is_apply(node):
-        return node
+        return 
     elif is_apply(children(node)[0]) and \
-       is_K(children(children(node)[0])[0]):
+         is_K(children(children(node)[0])[0]):
         # (Kx)y -> x
-        return children(children(node)[0])[1]
+        new_node = children(children(node)[0])[1]
+        node.parentNode.replaceChild(new_node, node)
+        raise Exit
     elif is_I(children(node)[0]):
         # Ix -> x
-        return children(node)[1]
+        new_node = children(node)[1]
+        node.parentNode.replaceChild(new_node, node)
+        raise Exit
     elif is_apply(children(node)[0]) and \
          is_apply(children(children(node)[0])[0]) and \
          is_S(children(children(children(node)[0])[0])[0]):
         # pfiu!  ((Sx)y)z -> (xz)(yz)
-        x = children(children(children(node)[0])[0])[0]
-        y = children(children(node)[0])[0]
+        x = children(children(children(node)[0])[0])[1]
+        y = children(children(node)[0])[1]
         z = children(node)[1]
-        return mk_apply(mk_apply(x, z), mk_apply(y, z.cloneNode(True)))
-    elif is_apply(node):
+        new_node = mk_apply(term,
+            mk_apply(term, x, z),
+            mk_apply(term, y, z.cloneNode(True)))
+        node.parentNode.replaceChild(new_node, node)
+        raise Exit
+    else:
         left = children(node)[0]
         right = children(node)[1]
         # try to rewrite left subtermm
-        new_left = _one_step(left)
-        if new_left != left:
-            return mk_apply(new_left, right)
+        _one_step(left)
         # try to rewrite right subtermm
-        new_right = _one_step(right)
-        if new_right != right:
-            return mk_apply(left, new_right)
-        # no rewriting
-        return node
-    else:
-        return node
+        _one_step(right)
 
 def one_step(term):
     """Performs in-place one step of reduction of the given term,
@@ -92,35 +94,28 @@ def one_step(term):
     Returns true if the term has been rewritten, false otherwise.
     """
     root = children(term)[0]
-    new_root = _one_step(root)
-    if new_root != root:
-        print "-" * 70
-        print "rewriting step:"
-        root.writexml(sys.stdout)
-        print "to"
-        new_root.writexml(sys.stdout)
-        print
-
-        term.replaceChild(new_root, root)
-        return True
-    else:
+    try:
+        _one_step(term, root)
         return False
+    except Exit:
+        return True
 
 def reduce_term(term):
     """Performs reduction steps until the term
     is in normal form
     """
-    while True:
-        if not one_step(term):
-            return
+    while one_step(term):
+        pass  # loop until not rewriting step
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print "usage: IKSML <file>"
     with open(sys.argv[1]) as f:
         term = xml.dom.minidom.parse(f)
+    print term.toxml()
     reduce_term(term)
-    term.writexml(sys.stdout)
-    print
+    print '-' * 70
+    print "normal form:"
+    print term.toprettyxml(indent='  ')
 
 # vim:shiftwidth=4:tabstop=4:
