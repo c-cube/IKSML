@@ -1,0 +1,29 @@
+<!-- (S (K (S I)) (S (K K) I) K I) -> K -->
+<apply>
+  <apply>
+    <apply>
+      <apply>
+        <fun><S/></fun>
+        <apply>
+          <fun><K/></fun>
+          <apply>
+             <fun><S/></fun>
+             <fun><I/></fun>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <apply>
+          <fun><S/></fun>
+          <apply>
+             <fun><K/></fun>
+             <fun><K/></fun>
+          </apply>
+        </apply>
+        <fun><I/></fun>
+      </apply>
+    </apply>
+    <fun><K/></fun>
+  </apply>
+  <fun><I/></fun>
+</apply>

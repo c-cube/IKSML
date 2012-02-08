@@ -1,0 +1,11 @@
+<apply>
+  <apply>
+    <apply>
+       <fun><S/></fun>
+       <fun><K/></fun>
+    </apply>
+     <fun><S/></fun>
+  </apply>
+  <fun><K/></fun>
+</apply>
+

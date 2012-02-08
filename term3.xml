@@ -1,0 +1,18 @@
+<!-- loop forever -->
+<apply>
+  <apply>
+    <apply>
+       <fun><S/></fun>
+       <fun><I/></fun>
+    </apply>
+    <fun><I/></fun>
+  </apply>
+  <apply>
+    <apply>
+       <fun><S/></fun>
+       <fun><I/></fun>
+    </apply>
+    <fun><I/></fun>
+  </apply>
+</apply>
+
