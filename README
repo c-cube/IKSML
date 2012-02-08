@@ -1,1 +1,26 @@
-IKSML is entreprise compliant!
+# IKSML
+
+IKSML is the future! IKSML is entreprise compliant! IKSML is
+a simple-yet-powerful functional language, with a XML syntax
+that makes it easy to read, parse, and store in your favorite
+database!
+
+
+Sample term:
+
+```xml
+<apply>
+  <apply>
+     <fun><K/></fun>
+     <fun><I/></fun>
+  </apply>
+  <fun><K/></fun>
+</apply>
+```
+
+This nice XML blob represents a *SKI* term (cf http://en.wikipedia.org/wiki/SK_calculus ). To
+reduce it to a normal term, invoke `IKSML.py <file.xml>`. Enjoy!
+
+
+Note: due to the lack of indexing and ASM inlining, the performance may be
+slightly lower than the equivalent code in C.
